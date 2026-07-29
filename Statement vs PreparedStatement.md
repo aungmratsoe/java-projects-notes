@@ -58,3 +58,735 @@ _(✅ အကျိုးကျေးဇူး - `?` နေရာတွင် ဝ
 - **Statement ကို ခန့်မှန်းရလွယ်သော နေရာတွင်သာ သုံးပါ -** parameter (variable) လုံးဝ မပါဝင်ဘဲ application run ချိန်တွင် တစ်ကြိမ်သာ သုံးမည့် static query မျိုး (ဥပမာ - application စဖွင့်ချင်း table အသစ်ဆောက်သည့် `CREATE TABLE ...` မျိုး) တွင်သာ Statement ကို သုံးသင့်သည်။ [[1]
 
 ---
+အရမ်းကောင်းတဲ့မေးခွန်းပါ။ Java Interview မှာလည်း **Statement** နဲ့ **PreparedStatement** က အမြဲလိုလို မေးခံရတဲ့ topic ဖြစ်ပါတယ်။
+
+ဒီနေ့တော့ **"Statement နဲ့ PreparedStatement ဘယ်လိုအလုပ်လုပ်လဲ?"** ကို JDBC အတွင်းမှာ **Senior Java Developer** တစ်ယောက်လို မြင်နိုင်အောင် မြန်မာလို အသေးစိတ်ရှင်းပြမယ်။
+
+---
+
+# JDBC ဆိုတာဘာလဲ?
+
+JDBC (Java Database Connectivity) ဆိုတာ
+
+> Java Program နဲ့ Database (MySQL, PostgreSQL, Oracle...) ကို ဆက်သွယ်ပေးတဲ့ API ဖြစ်ပါတယ်။
+
+Program က Database ကို ပြောချင်တဲ့အရာက SQL ဖြစ်ပါတယ်။
+
+ဥပမာ
+
+```
+SELECT * FROM students;
+```
+
+ဒါကို Java က Database ဆီပို့ရပါတယ်။
+
+ဒီနေရာမှာ အသုံးဝင်လာတာက
+
+```
+Statement
+PreparedStatement
+CallableStatement
+```
+
+ဒီနေ့တော့ Statement နဲ့ PreparedStatement ကို လေ့လာမယ်။
+
+---
+
+# JDBC Flow
+
+```
+Java Program
+
+      │
+
+      ▼
+
+Connection
+
+      │
+
+      ▼
+
+Statement / PreparedStatement
+
+      │
+
+      ▼
+
+MySQL Server
+
+      │
+
+      ▼
+
+Execute SQL
+
+      │
+
+      ▼
+
+ResultSet
+```
+
+ဒါက JDBC အလုပ်လုပ်တဲ့ Flow ဖြစ်ပါတယ်။
+
+---
+
+# Step 1
+
+Connection ရယူတယ်
+
+```java
+Connection conn =
+DriverManager.getConnection(
+"jdbc:mysql://localhost:3306/studentdb",
+"root",
+"1234");
+```
+
+ဒီမှာ
+
+Java Program က
+
+```
+Hello MySQL!
+
+I want to connect.
+```
+
+လို့ Database ကို ပြောတာပါ။
+
+Connection ရသွားပြီ။
+
+---
+
+# Step 2
+
+Statement Create လုပ်တယ်
+
+```java
+Statement stmt = conn.createStatement();
+```
+
+ဒီ Statement က
+
+SQL ကို Database ဆီပို့မယ့် Messenger ဖြစ်ပါတယ်။
+
+```
+Java
+   │
+   ▼
+Statement
+   │
+   ▼
+Database
+```
+
+---
+
+# Statement Example
+
+```java
+String sql =
+"SELECT * FROM students";
+
+ResultSet rs = stmt.executeQuery(sql);
+```
+
+ဒီမှာ
+
+Java က
+
+```
+SELECT * FROM students
+```
+
+ကို String အဖြစ် Database ဆီပို့လိုက်တာပါ။
+
+---
+
+# Database အတွင်းမှာဘာဖြစ်လဲ?
+
+Database က
+
+```
+SELECT * FROM students
+```
+
+ကို ရလာတယ်။
+
+အဲ့ဒီ SQL ကို
+
+**Parse**
+
+↓
+
+**Compile**
+
+↓
+
+**Optimize**
+
+↓
+
+**Execute**
+
+လုပ်ပါတယ်။
+
+ပြီးရင်
+
+Result ကို Java ဆီပြန်ပို့ပါတယ်။
+
+```
+Student1
+
+Student2
+
+Student3
+```
+
+---
+
+# Statement Diagram
+
+```
+Java
+
+ |
+
+ | SQL String
+
+ ▼
+
+Statement
+
+ |
+
+ ▼
+
+Database
+
+ |
+
+ ▼
+
+Parse
+
+Compile
+
+Optimize
+
+Execute
+
+ |
+
+ ▼
+
+ResultSet
+```
+
+---
+
+# Statement အားနည်းချက်
+
+Statement မှာ
+
+SQL ကို
+
+String နဲ့ပဲဆောက်ရတယ်။
+
+ဥပမာ
+
+```java
+String name = "Aung";
+
+String sql =
+"SELECT * FROM students WHERE name='"
++ name + "'";
+```
+
+Database ဆီသွားတဲ့ SQL က
+
+```
+SELECT * FROM students
+WHERE name='Aung'
+```
+
+အဆင်ပြေပါတယ်။
+
+ဒါပေမယ့် User က
+
+```
+'Aung' OR 1=1 --
+```
+
+ထည့်လိုက်ရင်
+
+SQL က
+
+```
+SELECT *
+FROM students
+WHERE name=''
+OR 1=1 --
+```
+
+ဖြစ်သွားတယ်။
+
+---
+
+# SQL Injection
+
+```
+WHERE name=''
+
+OR 1=1
+```
+
+`1=1` က အမြဲ True ဖြစ်ပါတယ်။
+
+ဒါဆို
+
+Database က
+
+Student အားလုံးကို ပြန်ပေးလိုက်တယ်။
+
+ဒါကို
+
+**SQL Injection Attack**
+
+လို့ခေါ်ပါတယ်။
+
+Statement ရဲ့ အကြီးဆုံး Problem ဖြစ်ပါတယ်။
+
+---
+
+# Statement Performance
+
+နောက်ပြဿနာတစ်ခုက
+
+အကြိမ် 1000 Query ထုတ်ရင်
+
+Database က
+
+အကြိမ် 1000
+
+Parse
+
+Compile
+
+Optimize
+
+လုပ်ရတယ်။
+
+ဥပမာ
+
+```
+SELECT * FROM students WHERE id=1
+
+SELECT * FROM students WHERE id=2
+
+SELECT * FROM students WHERE id=3
+
+SELECT * FROM students WHERE id=4
+```
+
+Database အမြင်မှာ
+
+ဒါတွေဟာ SQL အသစ်အသစ်တွေလို့ မြင်ပါတယ်။
+
+ဒါကြောင့်
+
+```
+Parse
+
+Compile
+
+Optimize
+```
+
+ကို အကြိမ်တိုင်း ထပ်လုပ်ရတယ်။
+
+---
+
+# ဒီပြဿနာကို ဖြေရှင်းတာ PreparedStatement
+
+PreparedStatement က
+
+SQL Structure ကို အရင် Prepare လုပ်ထားတယ်။
+
+ဥပမာ
+
+```java
+String sql =
+"SELECT * FROM students WHERE id=?";
+```
+
+ဒီမှာ
+
+```
+?
+```
+
+က Placeholder ဖြစ်ပါတယ်။
+
+---
+
+PreparedStatement Create
+
+```java
+PreparedStatement ps =
+conn.prepareStatement(sql);
+```
+
+ဒီအချိန်မှာ
+
+Database က
+
+```
+SELECT * FROM students
+WHERE id=?
+```
+
+ကို
+
+Parse
+
+Compile
+
+Optimize
+
+လုပ်ပြီး
+
+Memory ထဲမှာ သိမ်းထားတယ်။
+
+```
+Execution Plan
+```
+
+လို့ခေါ်ပါတယ်။
+
+---
+
+Parameter ထည့်မယ်
+
+```java
+ps.setInt(1,5);
+```
+
+ဆိုတာ
+
+```
+? = 5
+```
+
+လို့ ပြောတာပါ။
+
+---
+
+Execute
+
+```java
+ResultSet rs =
+ps.executeQuery();
+```
+
+Database ဆီသွားတဲ့ SQL က
+
+```
+SELECT *
+FROM students
+WHERE id=5
+```
+
+ဖြစ်ပါတယ်။
+
+---
+
+# ဒါဆို Parse ပြန်လုပ်လား?
+
+မလုပ်တော့ပါဘူး။
+
+Execution Plan ရှိပြီးသား။
+
+Parameter ပဲပြောင်းတယ်။
+
+```
+id=5
+
+id=6
+
+id=7
+
+id=8
+```
+
+---
+
+Database က
+
+```
+Execution Plan
+```
+
+ကိုပဲ သုံးပါတယ်။
+
+ဒါကြောင့်
+
+ပိုမြန်ပါတယ်။
+
+---
+
+# PreparedStatement Diagram
+
+```
+Java
+
+ |
+
+ ▼
+
+PreparedStatement
+
+ |
+
+ ▼
+
+SELECT *
+FROM students
+WHERE id=?
+
+ |
+
+ ▼
+
+Database
+
+ |
+
+ ▼
+
+Prepare Once
+
+Parse
+
+Compile
+
+Optimize
+
+ |
+
+ ▼
+
+Execution Plan
+
+ |
+
+ ▼
+
+setInt()
+
+ |
+
+ ▼
+
+Execute
+
+ |
+
+ ▼
+
+Result
+```
+
+---
+
+# SQL Injection ဘာကြောင့်မဖြစ်တာလဲ?
+
+ဥပမာ
+
+```java
+String sql =
+"SELECT * FROM students WHERE name=?";
+```
+
+```java
+ps.setString(1,
+"' OR 1=1 --");
+```
+
+Database က
+
+ဒါကို SQL အဖြစ် မမြင်ပါဘူး။
+
+Text အဖြစ်ပဲ မြင်ပါတယ်။
+
+တကယ်သွားတာက
+
+```
+Name
+
+=
+
+"' OR 1=1 --"
+```
+
+ဆိုတဲ့ String Value ပါ။
+
+ဒါကြောင့်
+
+SQL Structure မပြောင်းနိုင်ပါဘူး။
+
+SQL Injection မဖြစ်တော့ပါဘူး။
+
+---
+
+# Statement vs PreparedStatement
+
+|Statement|PreparedStatement|
+|---|---|
+|SQL ကို String နဲ့တည်ဆောက်|SQL Template + `?` Placeholder|
+|SQL Injection ဖြစ်နိုင်|SQL Injection ကို ကာကွယ်နိုင်|
+|Parse/Compile အကြိမ်တိုင်း|Prepare တစ်ခါလုပ်ပြီး ပြန်သုံးနိုင်|
+|Performance နည်း|Performance ပိုကောင်း|
+|Parameter မထောက်ပံ့|`setInt()`, `setString()` စတဲ့ parameter methods ပါဝင်|
+
+---
+
+# Real Example (Statement)
+
+```java
+Connection conn = DriverManager.getConnection(url, user, password);
+
+Statement stmt = conn.createStatement();
+
+String sql = "SELECT * FROM students WHERE id=1";
+
+ResultSet rs = stmt.executeQuery(sql);
+
+while (rs.next()) {
+    System.out.println(rs.getString("name"));
+}
+```
+
+**Flow**
+
+```
+Create Statement
+
+↓
+
+Send SQL String
+
+↓
+
+Database Parse
+
+↓
+
+Compile
+
+↓
+
+Execute
+
+↓
+
+Return Result
+```
+
+---
+
+# Real Example (PreparedStatement)
+
+```java
+Connection conn = DriverManager.getConnection(url, user, password);
+
+String sql = "SELECT * FROM students WHERE id=?";
+
+PreparedStatement ps = conn.prepareStatement(sql);
+
+ps.setInt(1, 1);
+
+ResultSet rs = ps.executeQuery();
+
+while (rs.next()) {
+    System.out.println(rs.getString("name"));
+}
+```
+
+**Flow**
+
+```
+Prepare SQL
+
+↓
+
+Database builds Execution Plan
+
+↓
+
+Set Parameter
+
+↓
+
+Execute
+
+↓
+
+Return Result
+```
+
+---
+
+# ဘယ်အချိန်မှာ Statement သုံးသင့်လဲ?
+
+တကယ်တော့ **Production Project** တွေမှာ Statement ကို သုံးတာ အလွန်ရှားပါတယ်။
+
+သုံးနိုင်တဲ့ အခြေအနေတွေကတော့
+
+- Parameter မလိုတဲ့ SQL
+    
+- Test code
+    
+- Database administration scripts
+    
+- Learning purpose
+    
+
+ဥပမာ
+
+```java
+Statement stmt = conn.createStatement();
+ResultSet rs = stmt.executeQuery("SELECT NOW()");
+```
+
+---
+
+# ဘယ်အချိန်မှာ PreparedStatement သုံးသင့်လဲ?
+
+နေ့စဉ် CRUD (Create, Read, Update, Delete) အလုပ်အားလုံးမှာ သုံးသင့်ပါတယ်။
+
+```java
+INSERT INTO students ...
+
+UPDATE students ...
+
+DELETE FROM students ...
+
+SELECT * FROM students WHERE id=?
+
+SELECT * FROM students WHERE email=?
+```
+
+သင့်ရဲ့ **Student Management System** မှာလည်း `PreparedStatement` ကို အဓိကသုံးသင့်ပါတယ်။ User က TextField ကနေ ထည့်တဲ့ data တွေကို `setString()`, `setInt()` စတဲ့ methods တွေနဲ့ parameter အဖြစ်ပို့တာက လုံခြုံပြီး performance လည်း ပိုကောင်းပါတယ်။
+
+---
+
+# Interview မှာ ဖြေဖို့ အတိုချုပ်
+
+> **Statement** က SQL ကို String အနေနဲ့ တိုက်ရိုက် execute လုပ်တာဖြစ်ပြီး SQL Injection ဖြစ်နိုင်သလို repeated execution မှာ performance မကောင်းပါဘူး။ **PreparedStatement** က SQL Template နဲ့ Placeholder (`?`) ကို သုံးပြီး parameter တွေကို သီးခြားပို့တဲ့အတွက် SQL Injection ကို ကာကွယ်နိုင်ပြီး execution plan ကို reuse လုပ်နိုင်လို့ performance ပိုကောင်းပါတယ်။
+
+---
+
+နောက်သင်ခန်းစာမှာ **PreparedStatement အတွင်း `setString()`, `setInt()`, `executeQuery()`, `executeUpdate()` ဘယ်လို အတွင်းပိုင်းအလုပ်လုပ်သလဲ** နဲ့ **ResultSet ရဲ့ Cursor ဘယ်လိုရွေ့သလဲ** ကို Diagram တွေ၊ Memory ပုံစံတွေနဲ့ အသေးစိတ်ဆက်ရှင်းပြပေးနိုင်ပါတယ်။
