@@ -1,4 +1,4 @@
-ကောင်းပါတယ်။ Java Swing / Enterprise Application (ဥပမာ သင်လုပ်မယ့် **Café POS System**) တည်ဆောက်မယ်ဆိုရင် **Exception Handling** ကို နားလည်ထားရမယ်။ Real-world application တွေမှာ Error ဖြစ်တာကို မဖျောက်ဘဲ **handle လုပ်ပြီး user ကို မှန်ကန်တဲ့ message ပေးခြင်း၊ log သိမ်းခြင်း၊ system မပျက်အောင် ထိန်းခြင်း** အတွက် အသုံးပြုပါတယ်။
+	ကောင်းပါတယ်။ Java Swing / Enterprise Application (ဥပမာ သင်လုပ်မယ့် **Café POS System**) တည်ဆောက်မယ်ဆိုရင် **Exception Handling** ကို နားလည်ထားရမယ်။ Real-world application တွေမှာ Error ဖြစ်တာကို မဖျောက်ဘဲ **handle လုပ်ပြီး user ကို မှန်ကန်တဲ့ message ပေးခြင်း၊ log သိမ်းခြင်း၊ system မပျက်အောင် ထိန်းခြင်း** အတွက် အသုံးပြုပါတယ်။
 
 ဒီ Lesson မှာ:
 

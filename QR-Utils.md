@@ -285,6 +285,8 @@ Return ImageIcon
 
 # Method Declaration
 
+==Method 1==
+
 ```java
 public ImageIcon getHighQualityPNG(String resourcePath, int width, int height)
 ```
@@ -1147,6 +1149,7 @@ JLabel / Save as PNG
 
 # Method Declaration
 
+==Method 2==
 ```java
 public BufferedImage generateQRCodeImage(String text, int width, int height) throws Exception
 ```
@@ -1823,6 +1826,7 @@ Save PNG File
 
 # Method Declaration
 
+==Method 3==
 ```java
 public void saveQRCodeToFile(String data,
                              String filePath,
@@ -2656,6 +2660,7 @@ JLabel / JButton / Save File
 
 # Method Declaration
 
+==Method 4==
 ```java
 public BufferedImage generateQRCode(
         String data,
