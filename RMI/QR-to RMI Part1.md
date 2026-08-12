@@ -61,6 +61,7 @@ QRCode (Single App)
 
 java
 
+```java
 // QRCode-Common ထဲမှာ
 
 import java.rmi.Remote;
@@ -84,7 +85,9 @@ public interface StudentService extends Remote {
     // ... အခြားများ
 
 }
+```
 
+```java
 public interface UserService extends Remote {
 
     boolean registerUser(User user) throws RemoteException, DataAccessException;
@@ -92,11 +95,13 @@ public interface UserService extends Remote {
     User loginUser(String email, String password) throws RemoteException, DataAccessException;
 
 }
+```
 
 > **အရေးကြီး:** Student နဲ့ User class တွေ `Serializable` implement လုပ်ရမည် — network ကတဆင့် object ပို့လို့ရဖို့
 
 java
 
+```java
 // Student.java မှာ ဖြည့်ရမည်
 
 public class Student implements Serializable {
@@ -106,16 +111,16 @@ public class Student implements Serializable {
     // ... ကျန်သောကုဒ်
 
 }
+```
 
 #### **အဆင့် ၂** — Server ဖက် (RMI Server)
 
 java
 
+```java
 // QRCode-Server ထဲမှာ
 
-public class StudentServiceImpl extends UnicastRemoteObject 
-
-                                implements StudentService {
+public class StudentServiceImpl extends UnicastRemoteObject implements StudentService {
 
     private StudentDAO dao = new StudentDAO(); // မင်းရဲ့ StudentDAO
 
@@ -132,7 +137,9 @@ public class StudentServiceImpl extends UnicastRemoteObject
     // ... အခြားများ
 
 }
+```
 
+```java
 // Server စတင်မယ့် main class
 
 public class RMIServer {
@@ -152,13 +159,14 @@ public class RMIServer {
         System.out.println("RMI Server started on port 1099...");
 
     }
-
 }
+```
 
 #### **အဆင့် ၃** — Client ဖက် (Swing UI)
 
 java
 
+```java
 // QRCode-Client ထဲမှာ — UI form တွေ ခေါ်တဲ့နည်း
 
 public class RMIClient {
@@ -183,14 +191,16 @@ public class RMIClient {
 
 }
 
+```
+
 မင်းရဲ့ Swing UI 
 
 QRScanner.java / 
 
 QRGenerator.java ထဲမှာ DAO ခေါ်တဲ့ နေရာကို ဒီလို ပြောင်းရမည်:
 
-java
 
+```java
 // ယခင် (direct DB)
 
 StudentDAO dao = new StudentDAO();
@@ -201,6 +211,7 @@ Student s = dao.getStudentByStudentId(id);
 
 Student s = RMIClient.getStudentService().getStudentByStudentId(id);
 
+```
 ---
 
 ### Project Structure ပြောင်းလဲမှု Summary
@@ -218,8 +229,7 @@ Student s = RMIClient.getStudentService().getStudentByStudentId(id);
 │   └── DataAccessException.java
 
 └── rmi/
-
-    ├── StudentService.java  ← extends Remote (interface)
+	├── StudentService.java  ← extends Remote (interface)
 
     └── UserService.java     ← extends Remote (interface)
 
